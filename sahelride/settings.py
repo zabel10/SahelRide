@@ -1,6 +1,7 @@
+from decouple import config
 from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = 'sahelride-secret-key-2026-change-in-production'
+SECRET_KEY = config('SECRET_KEY')
 DEBUG = True
 ALLOWED_HOSTS = ['*']
 INSTALLED_APPS = [
@@ -34,7 +35,15 @@ TEMPLATES = [{
     ]},
 }]
 WSGI_APPLICATION = 'sahelride.wsgi.application'
-DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': BASE_DIR / 'db.sqlite3'}}
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql', 
+        'NAME': config("DB_NAME"), 
+        'USER': config('DB_USER'), 
+        'PASSWORD': config('DB_PASSWORD'), 
+        'HOST': config('DB_HOST'), 
+        'PORT': config('DB_PORT') 
+        }}
 AUTH_USER_MODEL = 'location.Utilisateur'
 LANGUAGE_CODE = 'fr-fr'
 TIME_ZONE = 'Africa/Ouagadougou'
