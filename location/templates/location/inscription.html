@@ -1,0 +1,45 @@
+{% extends 'location/base.html' %}
+{% block title %}Inscription{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo"><a href="{% url 'accueil' %}">Sahel<span>Ride</span></a></div>
+    <h2>Créer un compte</h2>
+    <p class="text-muted mb-4">Rejoignez SahelRide et réservez votre véhicule en quelques clics.</p>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if next %}<input type="hidden" name="next" value="{{ next }}"/>{% endif %}
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Nom</label>{{ form.nom }}
+          {% if form.nom.errors %}<div class="form-error">{{ form.nom.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Prénom(s)</label>{{ form.prenom }}
+          {% if form.prenom.errors %}<div class="form-error">{{ form.prenom.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="col-12">
+          <label class="form-label">Email</label>{{ form.email }}
+          {% if form.email.errors %}<div class="form-error">{{ form.email.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="col-12">
+          <label class="form-label">Téléphone</label>{{ form.telephone }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Mot de passe</label>{{ form.password1 }}
+          {% if form.password1.errors %}<div class="form-error">{{ form.password1.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Confirmer</label>{{ form.password2 }}
+          {% if form.password2.errors %}<div class="form-error">{{ form.password2.errors.0 }}</div>{% endif %}
+        </div>
+        {% if form.non_field_errors %}<div class="col-12 form-error">{{ form.non_field_errors.0 }}</div>{% endif %}
+        <div class="col-12 mt-2">
+          <button type="submit" class="btn-yellow w-100">Créer mon compte</button>
+        </div>
+      </div>
+    </form>
+    <p class="text-center mt-3 text-muted">Déjà inscrit ? <a href="{% url 'connexion' %}">Se connecter</a></p>
+  </div>
+</div>
+{% endblock %}

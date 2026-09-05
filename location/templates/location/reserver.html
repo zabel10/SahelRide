@@ -1,0 +1,61 @@
+{% extends 'location/base.html' %}
+{% block title %}Réserver {{ voiture.marque }} {{ voiture.modele }}{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <a href="{% url 'detail_voiture' voiture.pk %}" class="back-link"><i class="bi bi-arrow-left"></i> Retour au véhicule</a>
+  <div class="resa-grid mt-4">
+    <!-- Récap voiture -->
+    <div class="resa-recap-card">
+      <img src="{{ voiture.image_url }}" alt="{{ voiture.marque }}"/>
+      <div class="resa-recap-info">
+        <h4>{{ voiture.marque }} {{ voiture.modele }}</h4>
+        <p class="text-muted"><i class="bi bi-geo-alt"></i> {{ voiture.ville }}</p>
+        <div class="resa-recap-price">{{ voiture.prix_jour|floatformat:0 }} FCFA <small>/jour</small></div>
+        {% if voiture.caution %}<p class="text-muted small">Caution : {{ voiture.caution|floatformat:0 }} FCFA</p>{% endif %}
+      </div>
+    </div>
+
+    <!-- Formulaire -->
+    <div class="resa-form-card">
+      <h2>Votre réservation</h2>
+      <p class="text-muted mb-4">Connecté en tant que <strong>{{ user.get_full_name }}</strong> ({{ user.email }})</p>
+      <form method="post" id="resa-form">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Date et heure de début</label>
+          {{ form.date_debut }}
+          {% if form.date_debut.errors %}<div class="form-error">{{ form.date_debut.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Date et heure de retour</label>
+          {{ form.date_fin }}
+          {% if form.date_fin.errors %}<div class="form-error">{{ form.date_fin.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="resa-total-preview" id="price-preview">
+          <span>Total estimé :</span>
+          <span id="total-price">– FCFA</span>
+        </div>
+        <button type="submit" class="btn-yellow w-100 mt-3">Continuer vers le paiement</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const prixJour = {{ voiture.prix_jour }};
+const debut = document.querySelector('[name="date_debut"]');
+const fin = document.querySelector('[name="date_fin"]');
+const totalEl = document.getElementById('total-price');
+function calcTotal(){
+  if(debut.value && fin.value){
+    const d1 = new Date(debut.value), d2 = new Date(fin.value);
+    const jours = Math.max(1, Math.ceil((d2-d1)/(1000*60*60*24)));
+    totalEl.textContent = (jours * prixJour).toLocaleString('fr-FR') + ' FCFA (' + jours + ' jour' + (jours>1?'s':'') + ')';
+  }
+}
+debut.addEventListener('change', calcTotal);
+fin.addEventListener('change', calcTotal);
+</script>
+{% endblock %}

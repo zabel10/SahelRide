@@ -1,0 +1,99 @@
+{% extends 'location/base.html' %}
+{% block title %}{{ voiture.marque }} {{ voiture.modele }}{% endblock %}
+{% block content %}
+<section class="detail-section">
+  <div class="container py-5">
+    <a href="javascript:history.back()" class="back-link"><i class="bi bi-arrow-left"></i> Retour</a>
+
+    <div class="detail-grid mt-4">
+      <!-- Image + galerie -->
+      <div class="detail-img-col">
+        <div class="detail-main-img">
+          <img src="{{ voiture.image_url }}" alt="{{ voiture.marque }} {{ voiture.modele }}"/>
+          <span class="badge-dispo {% if voiture.disponibilite == 'Disponible' %}dispo-ok{% else %}dispo-no{% endif %} detail-badge">{{ voiture.disponibilite }}</span>
+        </div>
+      </div>
+
+      <!-- Infos -->
+      <div class="detail-info-col">
+        <div class="detail-ville"><i class="bi bi-geo-alt"></i> {{ voiture.ville }}</div>
+        <h1>{{ voiture.marque }} {{ voiture.modele }}</h1>
+        {% if voiture.annee %}<p class="text-muted">Année : {{ voiture.annee }} | Couleur : {{ voiture.couleur }}</p>{% endif %}
+
+        <div class="detail-specs-grid">
+          <div class="spec-item"><i class="bi bi-people"></i><span>{{ voiture.nombre_places }} places</span></div>
+          <div class="spec-item"><i class="bi bi-gear"></i><span>{{ voiture.transmission }}</span></div>
+          <div class="spec-item"><i class="bi bi-fuel-pump"></i><span>{{ voiture.type_carburant }}</span></div>
+          <div class="spec-item"><i class="bi bi-geo-alt-fill"></i><span>{{ voiture.adresse }}</span></div>
+        </div>
+
+        {% if voiture.description %}
+        <div class="detail-desc mt-3">
+          <h4>Description</h4>
+          <p>{{ voiture.description }}</p>
+        </div>
+        {% endif %}
+
+        <div class="detail-price-bar">
+          <div>
+            <span class="detail-price">{{ voiture.prix_jour|floatformat:0 }} FCFA<small>/jour</small></span>
+            {% if voiture.caution %}<br/><small class="text-muted">Caution : {{ voiture.caution|floatformat:0 }} FCFA</small>{% endif %}
+          </div>
+          {% if voiture.disponibilite == 'Disponible' %}
+          <a href="{% url 'reserver' voiture.pk %}" class="btn-yellow">Réserver maintenant</a>
+          {% else %}
+          <span class="badge bg-danger p-2">Indisponible</span>
+          {% endif %}
+        </div>
+
+        {% if voiture.note_moyenne %}
+        <div class="detail-note mt-2">
+          <i class="bi bi-star-fill text-yellow"></i>
+          <strong>{{ voiture.note_moyenne }}/5</strong>
+          <span class="text-muted">({{ voiture.avis_set.count }} avis)</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- AVIS -->
+    <div class="detail-avis mt-5">
+      <h3>Avis clients ({{ avis_list.count }})</h3>
+      <div class="avis-grid mt-3">
+        {% for avis in avis_list %}
+        <div class="avis-card">
+          <div class="avis-stars">
+            {% for i in "12345" %}{% if forloop.counter <= avis.note %}<i class="bi bi-star-fill text-yellow"></i>{% else %}<i class="bi bi-star text-muted"></i>{% endif %}{% endfor %}
+          </div>
+          <p class="avis-text">"{{ avis.commentaire }}"</p>
+          <div class="avis-auteur">
+            <span class="avis-nom">{{ avis.utilisateur.get_full_name }}</span>
+            <span class="text-muted"> • {{ avis.date_avis }}</span>
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-muted">Aucun avis pour ce véhicule. Soyez le premier !</p>
+        {% endfor %}
+      </div>
+
+      <!-- Formulaire avis -->
+      {% if user.is_authenticated %}
+      <div class="avis-form-wrap mt-4">
+        <h4>Donner votre avis</h4>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="submit_avis" value="1"/>
+          <div class="mb-3">{{ avis_form.note.label_tag }}{{ avis_form.note }}</div>
+          <div class="mb-3">{{ avis_form.commentaire.label_tag }}{{ avis_form.commentaire }}</div>
+          <button type="submit" class="btn-yellow">Publier l'avis</button>
+        </form>
+      </div>
+      {% else %}
+      <div class="text-center mt-3">
+        <a href="{% url 'connexion' %}?next={{ request.path }}" class="btn-outline-yellow">Se connecter pour donner un avis</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'location/base.html' %}
+{% block title %}Connexion{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo"><a href="{% url 'accueil' %}">Sahel<span>Ride</span></a></div>
+    <h2>Se connecter</h2>
+    <p class="text-muted mb-4">Content de vous revoir sur SahelRide.</p>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if next %}<input type="hidden" name="next" value="{{ next }}"/>{% endif %}
+      <div class="mb-3">
+        <label class="form-label">Email</label>{{ form.username }}
+        {% if form.username.errors %}<div class="form-error">{{ form.username.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Mot de passe</label>{{ form.password }}
+        {% if form.password.errors %}<div class="form-error">{{ form.password.errors.0 }}</div>{% endif %}
+      </div>
+      {% if form.non_field_errors %}<div class="form-error mb-2">{{ form.non_field_errors.0 }}</div>{% endif %}
+      <button type="submit" class="btn-yellow w-100">Se connecter</button>
+    </form>
+    <p class="text-center mt-3 text-muted">Pas encore inscrit ? <a href="{% url 'inscription' %}">Créer un compte</a></p>
+  </div>
+</div>
+{% endblock %}

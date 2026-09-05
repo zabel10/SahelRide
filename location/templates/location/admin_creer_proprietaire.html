@@ -1,0 +1,68 @@
+{% extends 'location/base.html' %}
+{% block title %}Gestion des propriétaires{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  <aside class="dashboard-sidebar">
+    <nav class="dash-nav">
+      <a href="{% url 'dashboard' %}" class="dash-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
+      <a href="{% url 'admin_creer_proprietaire' %}" class="dash-link active"><i class="bi bi-people"></i> Propriétaires</a>
+      <a href="{% url 'toutes_voitures' %}" class="dash-link"><i class="bi bi-eye"></i> Voir le site</a>
+    </nav>
+  </aside>
+  <div class="dashboard-content">
+
+    <h2 class="mb-4">Gestion des propriétaires</h2>
+
+    <!-- Formulaire création -->
+    <div class="dash-card mb-4">
+      <h3 class="mb-3"><i class="bi bi-person-plus text-yellow me-2"></i>Créer un compte propriétaire</h3>
+      <p class="text-muted mb-4">Ce compte permettra à l'utilisateur d'ajouter des voitures et de gérer les réservations liées à son parc.</p>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-6"><label class="form-label">Nom</label>{{ form.nom }}{% if form.nom.errors %}<div class="form-error">{{ form.nom.errors.0 }}</div>{% endif %}</div>
+          <div class="col-md-6"><label class="form-label">Prénom(s)</label>{{ form.prenom }}{% if form.prenom.errors %}<div class="form-error">{{ form.prenom.errors.0 }}</div>{% endif %}</div>
+          <div class="col-md-6"><label class="form-label">Email</label>{{ form.email }}{% if form.email.errors %}<div class="form-error">{{ form.email.errors.0 }}</div>{% endif %}</div>
+          <div class="col-md-6"><label class="form-label">Téléphone</label>{{ form.telephone }}</div>
+          <div class="col-md-6"><label class="form-label">Mot de passe</label>{{ form.password1 }}{% if form.password1.errors %}<div class="form-error">{{ form.password1.errors.0 }}</div>{% endif %}</div>
+          <div class="col-md-6"><label class="form-label">Confirmer</label>{{ form.password2 }}{% if form.password2.errors %}<div class="form-error">{{ form.password2.errors.0 }}</div>{% endif %}</div>
+          {% if form.non_field_errors %}<div class="col-12 form-error">{{ form.non_field_errors.0 }}</div>{% endif %}
+          <div class="col-12"><button type="submit" class="btn-yellow">Créer le compte</button></div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Liste propriétaires -->
+    <div class="dash-card">
+      <h3 class="mb-3">Propriétaires existants ({{ proprietaires.count }})</h3>
+      {% if proprietaires %}
+      <div class="table-responsive">
+        <table class="table-dark-custom">
+          <thead><tr><th>Nom</th><th>Email</th><th>Téléphone</th><th>Inscription</th><th>Voitures</th><th>Action</th></tr></thead>
+          <tbody>
+            {% for p in proprietaires %}
+            <tr>
+              <td><strong>{{ p.get_full_name }}</strong></td>
+              <td>{{ p.email }}</td>
+              <td>{{ p.telephone|default:"–" }}</td>
+              <td>{{ p.date_inscription|date:"d/m/Y" }}</td>
+              <td>{{ p.voitures.count }} voiture{{ p.voitures.count|pluralize }}</td>
+              <td>
+                <form method="post" action="{% url 'admin_supprimer_proprietaire' p.pk %}" onsubmit="return confirm('Supprimer ce propriétaire et tous ses véhicules ?')">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-sm-dash btn-danger-dash">Supprimer</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-muted">Aucun propriétaire créé pour l'instant.</p>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

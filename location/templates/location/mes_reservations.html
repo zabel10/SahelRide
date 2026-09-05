@@ -1,0 +1,42 @@
+{% extends 'location/base.html' %}
+{% block title %}Mes réservations{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <h1 class="mb-4">Mes réservations</h1>
+  {% if reservations %}
+  <div class="table-responsive">
+    <table class="table-dark-custom">
+      <thead>
+        <tr>
+          <th>Véhicule</th><th>Ville</th><th>Date</th><th>Montant</th><th>Paiement</th><th>Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in reservations %}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <img src="{{ r.voiture.image_url }}" alt="" style="width:50px;height:36px;object-fit:cover;border-radius:4px;"/>
+              <a href="{% url 'detail_voiture' r.voiture.pk %}">{{ r.voiture.marque }} {{ r.voiture.modele }}</a>
+            </div>
+          </td>
+          <td>{{ r.voiture.ville }}</td>
+          <td>{{ r.date_debut|date:"d/m/Y" }} – {{ r.date_fin|date:"d/m/Y" }}</td>
+          <td>{{ r.prix_total|floatformat:0 }} FCFA</td>
+          <td>{% if r.paiement %}{{ r.paiement.mode_paiement }}{% else %}<span class="text-muted">–</span>{% endif %}</td>
+          <td><span class="badge-statut statut-{{ r.statut_reservation|lower|cut:' ' }}">{{ r.statut_reservation }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <i class="bi bi-calendar-x"></i>
+    <h3>Aucune réservation</h3>
+    <p>Vous n'avez pas encore effectué de réservation.</p>
+    <a href="{% url 'toutes_voitures' %}" class="btn-yellow mt-2">Voir les voitures</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

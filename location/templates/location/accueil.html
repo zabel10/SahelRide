@@ -1,0 +1,122 @@
+{% extends 'location/base.html' %}
+{% load static %}
+{% block title %}Accueil{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <h1>Prenez la route<br/><span class="text-yellow">Où que vous soyez au Burkina.</span></h1>
+    <p>Réservez votre véhicule en quelques clics à Ouagadougou, Bobo-Dioulasso ou Gaoua.</p>
+    <form class="hero-search" action="{% url 'par_ville' %}" method="get">
+      <div class="hero-search-inner">
+        <i class="bi bi-geo-alt"></i>
+        <select name="ville" class="form-select">
+          <option value="">Choisir une ville</option>
+          {% for v,label in villes %}
+          <option value="{{ v }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn-yellow">Rechercher</button>
+      </div>
+    </form>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><span class="stat-num">{{ stats.nb_voitures }}+</span><span class="stat-label">Véhicules</span></div>
+    <div class="stat"><span class="stat-num">3</span><span class="stat-label">Villes</span></div>
+    <div class="stat"><span class="stat-num">+{{ stats.nb_clients }}</span><span class="stat-label">Clients satisfaits</span></div>
+  </div>
+</section>
+
+<!-- VEHICULES POPULAIRES -->
+<section class="section-cars">
+  <div class="container">
+    <div class="section-head">
+      <h2>Véhicules Populaires</h2>
+      <a href="{% url 'toutes_voitures' %}" class="btn-outline-yellow">Voir tout</a>
+    </div>
+    <div class="cars-grid">
+      {% for v in voitures %}
+      <div class="car-card">
+        <div class="car-img-wrap">
+          <img src="{{ v.image_url }}" alt="{{ v.marque }} {{ v.modele }}" loading="lazy"/>
+          <span class="badge-ville">{{ v.ville }}</span>
+          <span class="badge-dispo {% if v.disponibilite == 'Disponible' %}dispo-ok{% else %}dispo-no{% endif %}">{{ v.disponibilite }}</span>
+        </div>
+        <div class="car-body">
+          <h3>{{ v.marque }} {{ v.modele }}</h3>
+          <div class="car-specs">
+            <span><i class="bi bi-people"></i> {{ v.nombre_places }} places</span>
+            <span><i class="bi bi-gear"></i> {{ v.transmission }}</span>
+            <span><i class="bi bi-fuel-pump"></i> {{ v.type_carburant }}</span>
+          </div>
+          <div class="car-footer">
+            <span class="car-price"><strong>{{ v.prix_jour|floatformat:0 }} FCFA</strong>/j</span>
+            <div class="car-actions">
+              <a href="{% url 'detail_voiture' v.pk %}" class="btn-details">Détails</a>
+              {% if v.disponibilite == 'Disponible' %}
+              <a href="{% url 'reserver' v.pk %}" class="btn-reserver">Réserver</a>
+              {% else %}
+              <span class="btn-reserver btn-reserver-disabled">Indisponible</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <p class="text-muted">Aucun véhicule disponible pour l'instant.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section class="cta-banner">
+  <div class="container text-center">
+    <h2>FAITES DE VOS DÉPLACEMENTS DES MOMENTS INOUBLIABLES<br/>AVEC NOS VOITURES ADAPTÉES À TOUTES VOS SORTIES</h2>
+    <a href="{% url 'toutes_voitures' %}" class="btn-yellow mt-3">Réserver ici</a>
+  </div>
+</section>
+
+<!-- AVIS -->
+<section class="section-avis">
+  <div class="container">
+    <h2 class="mb-4">Ce que disent nos clients</h2>
+    <div class="avis-grid">
+      {% for avis in avis_recents %}
+      <div class="avis-card">
+        <div class="avis-stars">{% for i in "12345" %}{% if forloop.counter <= avis.note %}<i class="bi bi-star-fill text-yellow"></i>{% else %}<i class="bi bi-star text-muted"></i>{% endif %}{% endfor %}</div>
+        <p class="avis-text">"{{ avis.commentaire }}"</p>
+        <div class="avis-auteur">
+          <span class="avis-nom">{{ avis.utilisateur.get_full_name }}</span>
+          <span class="avis-voiture">• {{ avis.voiture.marque }} {{ avis.voiture.modele }}</span>
+        </div>
+      </div>
+      {% empty %}
+      <p class="text-muted">Aucun avis pour l'instant. Soyez le premier !</p>
+      {% endfor %}
+    </div>
+
+    <!-- Formulaire avis (connecté uniquement) -->
+    {% comment %} {% if user.is_authenticated and avis_form %}
+    <div class="avis-form-wrap mt-5">
+      <h3>Laisser un avis</h3>
+      <p class="text-muted mb-3">Vous devez d'abord réserver un véhicule pour laisser un avis sur sa page.</p>
+    </div> {% endcomment %}
+    {% if not user.is_authenticated %}
+    <div class="text-center mt-4">
+      <p class="text-muted">Vous souhaitez partager votre expérience ?</p>
+      <a href="{% url 'connexion' %}" class="btn-yellow">Se connecter pour donner un avis</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Sélection hero stats villes
+const villes = {{ villes|safe }};
+</script>
+{% endblock %}

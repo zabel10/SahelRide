@@ -1,0 +1,39 @@
+{% extends 'location/base.html' %}
+{% block title %}Paiement{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="resa-grid">
+    <!-- Récap réservation -->
+    <div class="resa-recap-card">
+      <img src="{{ reservation.voiture.image_url }}" alt="{{ reservation.voiture.marque }}"/>
+      <div class="resa-recap-info">
+        <h4>{{ reservation.voiture.marque }} {{ reservation.voiture.modele }}</h4>
+        <p class="text-muted"><i class="bi bi-geo-alt"></i> {{ reservation.voiture.ville }}</p>
+        <hr class="border-secondary"/>
+        <p><i class="bi bi-calendar-event"></i> Du {{ reservation.date_debut|date:"d/m/Y H:i" }}</p>
+        <p><i class="bi bi-calendar-check"></i> Au {{ reservation.date_fin|date:"d/m/Y H:i" }}</p>
+        <div class="resa-recap-price">Total : {{ reservation.prix_total|floatformat:0 }} FCFA</div>
+      </div>
+    </div>
+
+    <!-- Formulaire paiement -->
+    <div class="resa-form-card">
+      <h2>Mode de paiement</h2>
+      <p class="text-muted mb-4">Choisissez votre mode de paiement pour confirmer la réservation.</p>
+      <form method="post">
+        {% csrf_token %}
+        <div class="paiement-options">
+          {% for radio in form.mode_paiement %}
+          <label class="paiement-option">
+            {{ radio.tag }}
+            <span>{{ radio.choice_label }}</span>
+          </label>
+          {% endfor %}
+        </div>
+        {% if form.errors %}<div class="form-error mt-2">Veuillez choisir un mode de paiement.</div>{% endif %}
+        <button type="submit" class="btn-yellow w-100 mt-4">Confirmer et payer</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

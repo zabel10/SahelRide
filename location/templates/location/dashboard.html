@@ -1,0 +1,106 @@
+{% extends 'location/base.html' %}
+{% block title %}Dashboard Admin{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  <!-- Sidebar -->
+  <aside class="dashboard-sidebar">
+    <nav class="dash-nav">
+      <a href="#stats" class="dash-link active"><i class="bi bi-speedometer2"></i> Dashboard</a>
+      <a href="#voitures" class="dash-link"><i class="bi bi-car-front"></i> Véhicules</a>
+      <a href="#reservations" class="dash-link"><i class="bi bi-calendar-check"></i> Réservations</a>
+      <a href="{% url 'admin_creer_proprietaire' %}" class="dash-link"><i class="bi bi-people"></i> Propriétaires</a>
+      <a href="{% url 'toutes_voitures' %}" class="dash-link"><i class="bi bi-eye"></i> Voir le site</a>
+    </nav>
+  </aside>
+
+  <!-- Contenu dashboard -->
+  <div class="dashboard-content">
+    <!-- Stats -->
+    <div class="dash-stats" id="stats">
+      <div class="dash-stat-card">
+        <div class="dash-stat-num">{{ nb_voitures }}</div>
+        <div class="dash-stat-label">Véhicules</div>
+        <div class="dash-stat-sub text-success"><i class="bi bi-arrow-up"></i> Parc actif</div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="dash-stat-num">{{ nb_reservations }}</div>
+        <div class="dash-stat-label">Réservations</div>
+        <div class="dash-stat-sub text-success"><i class="bi bi-arrow-up"></i> Total</div>
+      </div>
+    </div>
+
+    <!-- Top 5 véhicules -->
+    <div class="dash-card mt-4">
+      <h3 class="mb-3">Top 5 véhicules les plus loués</h3>
+      {% for v in top5 %}
+      <div class="top-car-row">
+        <span class="top-car-name">{{ v.marque }} {{ v.modele }}</span>
+        <div class="top-car-bar-wrap">
+          <div class="top-car-bar" style="width: {% if top5.0.nb_locations > 0 %}{% widthratio v.nb_locations top5.0.nb_locations 100 %}{% else %}0{% endif %}%"></div>
+        </div>
+        <span class="top-car-count">{{ v.nb_locations }} loc.</span>
+      </div>
+      {% empty %}<p class="text-muted">Aucun véhicule enregistré.</p>
+      {% endfor %}
+    </div>
+
+    <!-- Table véhicules -->
+    <div class="dash-card mt-4" id="voitures">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Parc Automobile</h3>
+        {% comment %} <a href="{% url 'proprio_ajouter_voiture' %}" class="btn-yellow btn-sm-dash">+ Ajouter</a> {% endcomment %}
+      </div>
+      <div class="table-responsive">
+        <table class="table-dark-custom">
+          <thead>
+            <tr><th>Véhicule</th><th>Type</th><th>Ville</th><th>Prix/jour</th><th>Statut</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            {% for v in voitures %}
+            <tr>
+              <td>{{ v.marque }} {{ v.modele }}</td>
+              <td>{{ v.type_carburant }}</td>
+              <td>{{ v.ville }}</td>
+              <td>{{ v.prix_jour|floatformat:0 }} FCFA</td>
+              <td><span class="badge-dispo-table {% if v.disponibilite == 'Disponible' %}dispo-ok{% else %}dispo-no{% endif %}">{{ v.disponibilite }}</span></td>
+              <td>
+                {% comment %} <a href="{% url 'proprio_modifier_voiture' v.pk %}" class="btn-details btn-sm-dash">Modifier</a> {% endcomment %}
+                <a href="/admin/location/voiture/{{ v.pk }}/delete/" class="btn-sm-dash btn-danger-dash" onclick="return confirm('Supprimer ce véhicule ?')">Supprimer</a>
+              </td>
+            </tr>
+            {% empty %}<tr><td colspan="6" class="text-muted">Aucun véhicule.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Table réservations -->
+    <div class="dash-card mt-4" id="reservations">
+      <h3 class="mb-3">Réservations</h3>
+      <div class="table-responsive">
+        <table class="table-dark-custom">
+          <thead>
+            <tr><th>Client</th><th>Véhicule</th><th>Ville</th><th>Date</th><th>Montant</th><th>Paiement</th><th>Statut</th></tr>
+          </thead>
+          <tbody>
+            {% for r in reservations %}
+            <tr>
+              <td>{{ r.utilisateur.get_full_name }}</td>
+              <td>{{ r.voiture.marque }} {{ r.voiture.modele }}</td>
+              <td>{{ r.voiture.ville }}</td>
+              <td>{{ r.date_debut|date:"d/m" }}–{{ r.date_fin|date:"d/m/Y" }}</td>
+              <td>{{ r.prix_total|floatformat:0 }} FCFA</td>
+              <td>{% if r.paiement %}{{ r.paiement.mode_paiement }}{% else %}–{% endif %}</td>
+              <td><span class="badge-statut statut-{{ r.statut_reservation|lower|cut:' ' }}">{{ r.statut_reservation }}</span></td>
+            </tr>
+            {% empty %}<tr><td colspan="7" class="text-muted">Aucune réservation.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /dashboard-content -->
+</div><!-- /dashboard-layout -->
+{% endblock %}

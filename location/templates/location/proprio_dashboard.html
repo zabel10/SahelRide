@@ -1,0 +1,115 @@
+{% extends 'location/base.html' %}
+{% block title %}Mon espace propriétaire{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  <aside class="dashboard-sidebar">
+    <nav class="dash-nav">
+      <a href="{% url 'proprio_dashboard' %}" class="dash-link active"><i class="bi bi-house"></i> Mon espace</a>
+      <a href="{% url 'proprio_ajouter_voiture' %}" class="dash-link"><i class="bi bi-plus-circle"></i> Ajouter un véhicule</a>
+      <a href="{% url 'toutes_voitures' %}" class="dash-link"><i class="bi bi-eye"></i> Voir le site</a>
+    </nav>
+  </aside>
+  <div class="dashboard-content">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+      <div>
+        <h2>Bonjour, {{ user.prenom }}</h2>
+        <p class="text-muted">Gérez votre parc automobile et vos réservations.</p>
+      </div>
+      <a href="{% url 'proprio_ajouter_voiture' %}" class="btn-yellow"><i class="bi bi-plus me-1"></i>Ajouter un véhicule</a>
+    </div>
+
+    <!-- Stats -->
+    <div class="dash-stats mb-4">
+      <div class="dash-stat-card">
+        <div class="dash-stat-num">{{ nb_voitures }}</div>
+        <div class="dash-stat-label">Mes véhicules</div>
+        <div class="dash-stat-sub text-muted">Parc actif</div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="dash-stat-num">{{ nb_reservations }}</div>
+        <div class="dash-stat-label">Réservations reçues</div>
+        <div class="dash-stat-sub text-muted">Total</div>
+      </div>
+    </div>
+
+    <!-- Mes véhicules -->
+    <div class="dash-card mb-4">
+      <h3 class="mb-3">Mes véhicules</h3>
+      {% if voitures %}
+      <div class="table-responsive">
+        <table class="table-dark-custom">
+          <thead><tr><th>Véhicule</th><th>Ville</th><th>Prix/jour</th><th>Statut</th><th>Locations</th><th>Actions</th></tr></thead>
+          <tbody>
+            {% for v in voitures %}
+            <tr>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <img src="{{ v.image_url }}" alt="" style="width:48px;height:34px;object-fit:cover;border-radius:4px;"/>
+                  <span>{{ v.marque }} {{ v.modele }}</span>
+                </div>
+              </td>
+              <td>{{ v.ville }}</td>
+              <td>{{ v.prix_jour|floatformat:0 }} FCFA</td>
+              <td><span class="badge-dispo-table {% if v.disponibilite == 'Disponible' %}dispo-ok{% else %}dispo-no{% endif %}">{{ v.disponibilite }}</span></td>
+              <td>{{ v.nb_locations }}</td>
+              <td>
+                <a href="{% url 'proprio_modifier_voiture' v.pk %}" class="btn-details btn-sm-dash">Modifier</a>
+                <form method="post" action="{% url 'proprio_supprimer_voiture' v.pk %}" style="display:inline" onsubmit="return confirm('Supprimer ce véhicule ?')">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-sm-dash btn-danger-dash">Supprimer</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <i class="bi bi-car-front"></i>
+        <h3>Aucun véhicule</h3>
+        <p>Ajoutez votre premier véhicule pour commencer à recevoir des réservations.</p>
+        <a href="{% url 'proprio_ajouter_voiture' %}" class="btn-yellow mt-2">Ajouter un véhicule</a>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Réservations reçues -->
+    <div class="dash-card">
+      <h3 class="mb-3">Réservations reçues</h3>
+      {% if reservations %}
+      <div class="table-responsive">
+        <table class="table-dark-custom">
+          <thead><tr><th>Client</th><th>Véhicule</th><th>Dates</th><th>Montant</th><th>Paiement</th><th>Statut</th><th>Action</th></tr></thead>
+          <tbody>
+            {% for r in reservations %}
+            <tr>
+              <td>{{ r.utilisateur.get_full_name }}<br/><small class="text-muted">{{ r.utilisateur.telephone }}</small></td>
+              <td>{{ r.voiture.marque }} {{ r.voiture.modele }}</td>
+              <td>{{ r.date_debut|date:"d/m/Y" }}<br/>→ {{ r.date_fin|date:"d/m/Y" }}</td>
+              <td>{{ r.prix_total|floatformat:0 }} FCFA</td>
+              <td>{% if r.paiement %}{{ r.paiement.mode_paiement }}<br/><small class="text-muted">{{ r.paiement.etat_paiement }}</small>{% else %}<span class="text-muted">–</span>{% endif %}</td>
+              <td><span class="badge-statut statut-{{ r.statut_reservation|lower|cut:' ' }}">{{ r.statut_reservation }}</span></td>
+              <td>
+                <form method="post" action="{% url 'proprio_changer_statut_resa' r.pk %}">
+                  {% csrf_token %}
+                  <select name="statut" class="form-select form-select-sm" style="min-width:110px;background:#1a1a1a;color:#fff;border-color:#2a2a2a;" onchange="this.form.submit()">
+                    <option value="{{ r.statut_reservation }}" selected>{{ r.statut_reservation }}</option>
+                    {% for val,label in r.get_statut_reservation_choices %}
+                    {% if val != r.statut_reservation %}<option value="{{ val }}">{{ label }}</option>{% endif %}
+                    {% endfor %}
+                  </select>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-muted">Aucune réservation reçue pour l'instant.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

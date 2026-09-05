@@ -1,0 +1,78 @@
+{% extends 'location/base.html' %}
+{% block title %}{{ action }} un véhicule{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <a href="{% url 'proprio_dashboard' %}" class="back-link"><i class="bi bi-arrow-left"></i> Retour à mon espace</a>
+  <div class="resa-form-card mt-4" style="max-width:700px;">
+    <h2 class="mb-1">{{ action }} un véhicule</h2>
+    <p class="text-muted mb-4">Les champs marqués * sont obligatoires.</p>
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Marque *</label>{{ form.marque }}
+          {% if form.marque.errors %}<div class="form-error">{{ form.marque.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Modèle *</label>{{ form.modele }}
+          {% if form.modele.errors %}<div class="form-error">{{ form.modele.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Année</label>{{ form.annee }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Couleur</label>{{ form.couleur }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Immatriculation *</label>{{ form.immatriculation }}
+          {% if form.immatriculation.errors %}<div class="form-error">{{ form.immatriculation.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Ville *</label>{{ form.ville }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Adresse *</label>{{ form.adresse }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Prix / jour (FCFA) *</label>{{ form.prix_jour }}
+          {% if form.prix_jour.errors %}<div class="form-error">{{ form.prix_jour.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Caution (FCFA)</label>{{ form.caution }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Disponibilité</label>{{ form.disponibilite }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Nombre de places</label>{{ form.nombre_places }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Carburant</label>{{ form.type_carburant }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Transmission</label>{{ form.transmission }}
+        </div>
+        <div class="col-12">
+          <label class="form-label">Description</label>{{ form.description }}
+        </div>
+        <div class="col-12">
+          <label class="form-label">Image du véhicule</label>
+          {% if voiture and voiture.image %}
+          <div class="mb-2">
+            <img src="{{ voiture.image_url }}" alt="Image actuelle" style="height:80px;border-radius:6px;object-fit:cover;"/>
+            <small class="text-muted d-block mt-1">Image actuelle - sélectionnez-en une autre pour la remplacer.</small>
+          </div>
+          {% endif %}
+          {{ form.image }}
+          <small class="text-muted">Téléversez votre image  ici.</small>
+        </div>
+        <div class="col-12 mt-2 d-flex gap-3">
+          <button type="submit" class="btn-yellow">{{ action }} le véhicule</button>
+          <a href="{% url 'proprio_dashboard' %}" class="btn-outline-yellow">Annuler</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

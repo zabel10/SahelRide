@@ -1,0 +1,52 @@
+{% extends 'location/base.html' %}
+{% block title %}Par ville{% endblock %}
+{% block content %}
+<section class="section-cars pt-5">
+  <div class="container">
+    <h1 class="mb-4">Voitures par ville</h1>
+    <div class="ville-tabs mb-4">
+      <a href="{% url 'par_ville' %}" class="ville-tab {% if not ville_active %}active{% endif %}">Toutes</a>
+      {% for v,label in villes %}
+      <a href="?ville={{ v }}" class="ville-tab {% if ville_active == v %}active{% endif %}">{{ label }}</a>
+      {% endfor %}
+    </div>
+    {% if ville_active %}
+    <div class="ville-header mb-4">
+      <h2>{{ ville_active }}</h2>
+      <p class="text-muted">{{ voitures.count }} voiture{% if voitures.count > 1 %}s{% endif %} disponible{% if voitures.count > 1 %}s{% endif %}</p>
+    </div>
+    {% endif %}
+    <div class="cars-grid">
+      {% for v in voitures %}
+      <div class="car-card">
+        <div class="car-img-wrap">
+          <img src="{{ v.image_url }}" alt="{{ v.marque }} {{ v.modele }}" loading="lazy"/>
+          <span class="badge-ville">{{ v.ville }}</span>
+          <span class="badge-dispo dispo-ok">{{ v.disponibilite }}</span>
+        </div>
+        <div class="car-body">
+          <h3>{{ v.marque }} {{ v.modele }}</h3>
+          <div class="car-specs">
+            <span><i class="bi bi-people"></i> {{ v.nombre_places }} places</span>
+            <span><i class="bi bi-gear"></i> {{ v.transmission }}</span>
+            <span><i class="bi bi-fuel-pump"></i> {{ v.type_carburant }}</span>
+          </div>
+          <div class="car-footer">
+            <span class="car-price"><strong>{{ v.prix_jour|floatformat:0 }} FCFA</strong>/j</span>
+            <div class="car-actions">
+              <a href="{% url 'detail_voiture' v.pk %}" class="btn-details">Détails</a>
+              {% if v.disponibilite == 'Disponible' %}
+              <a href="{% url 'reserver' v.pk %}" class="btn-reserver">Réserver</a>
+              {% else %}
+              <span class="btn-reserver btn-reserver-disabled">Indisponible</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}<p class="text-muted">Aucun véhicule disponible dans cette ville.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
