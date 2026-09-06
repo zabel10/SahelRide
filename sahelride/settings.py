@@ -59,3 +59,14 @@ LOGOUT_REDIRECT_URL = '/'
 
 STATICFILES_DIRS = []
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+import os
+
+# Config des fichiers statiques
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Pour les médias (images uploadées)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
